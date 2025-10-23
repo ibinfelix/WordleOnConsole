@@ -4,6 +4,7 @@ import random
 def palabra_aleatoria(palabras, usadas):
 
     if len(usadas) == len(palabras):  # Si ya se usaron todas las palabras
+        usadas.clear()
         return 0  
 
     palabra = random.choice(palabras)
@@ -60,7 +61,7 @@ def main():
     ]
     
     palabras = []
-    usadas = []
+    usadas = [[],[],[]]
 
     while True:
         inicio = input("¿Quieres jugar Wordle? (si/no): ").lower()
@@ -73,16 +74,19 @@ def main():
 
             if dificultad == "facil":
                 palabras = lista_dificultad[0]
+                category = 0
             elif dificultad == "medio":
                 palabras = lista_dificultad[1]
+                category = 1
             elif dificultad == "dificil":
                 palabras = lista_dificultad[2]
+                category = 2
             else:
                 print("Por favor, elige una dificultad válida: ")
                 continue
 
-            palabra = palabra_aleatoria(palabras, usadas)
-            usadas.append(palabra)
+            palabra = palabra_aleatoria(palabras, usadas[category])
+            usadas[category].append(palabra)
 
             if palabra == 0:
                 print("¡Has descubierto todas las palabras en esta dificultad! 🎉")
@@ -91,6 +95,9 @@ def main():
             resultado, intentos = wordle(palabra)
             print(resultado)
             print(f"¡Correcto! ¡Encontraste la palabra en {intentos} intentos!")
+            if palabra_aleatoria(palabras, usadas[category]) == 0:
+                print("¡Has descubierto todas las palabras en esta dificultad! 🎉")
+                continue
 
         else:
             print("Por favor responde con 'si' o 'no'.")
