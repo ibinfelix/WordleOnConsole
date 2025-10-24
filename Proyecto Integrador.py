@@ -4,11 +4,9 @@ import random
 def palabra_aleatoria(palabras, usadas):
 
     if len(usadas) == len(palabras):  # Si ya se usaron todas las palabras
-        usadas.clear()
         return 0  
 
     palabra = random.choice(palabras)
-
     while palabra in usadas:  # Elegir otra si ya fue usada
         palabra = random.choice(palabras)
 
@@ -22,6 +20,7 @@ def wordle(palabra):
     letras_palabra = list(palabra)
     pistas = [""] * len(palabra)
     discarded = []
+    available = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
     colors = {'green':'\033[42m','yellow':'\033[43m','red':'\033[41m','reset':'\033[0m'}
 
     while True:
@@ -45,23 +44,30 @@ def wordle(palabra):
                 if intento[i] not in discarded:
                     discarded.append(intento[i])
                     discarded.sort()
+                    available.remove(intento[i])
 
         if intento == palabra:
             return "".join(pistas), intentos
         else:
-            print("".join(pistas), 'Letras descartadas:', ", ".join(discarded))
+            print("".join(pistas),
+                  '\nLetras descartadas:',
+                  ", ".join(discarded),
+                  "\nLetras disponibles:",
+                  ', '.join(available))
 
 
 # Función principal del juego
 def main():
-    lista_dificultad = [
-        ['gato', 'perro', 'sol', 'llave', 'rata'],
-        ['manzana', 'uva', 'mango', 'camino', 'piedra'],
-        ['imagen', 'pais', 'balance', 'diamante', 'realidad']
-    ]
-    
-    palabras = []
-    usadas = [[],[],[]]
+    file = open('words.txt','r')
+    easy_list = file.readline().split()
+    medium_list = file.readline().split()
+    hard_list = file.readline().split()
+    file.close()
+
+    file = open('used.txt','r')
+    usadas = [file.readline().split() for i in range(3)]
+
+    # INSTRUCCION: Haz el archivo words.txt 
 
     while True:
         inicio = input("¿Quieres jugar Wordle? (si/no): ").lower()
@@ -73,20 +79,19 @@ def main():
             dificultad = input("Elige una dificultad (facil, medio, dificil): ").lower()
 
             if dificultad == "facil":
-                palabras = lista_dificultad[0]
+                palabras = easy_list
                 category = 0
             elif dificultad == "medio":
-                palabras = lista_dificultad[1]
+                palabras = medium_list
                 category = 1
             elif dificultad == "dificil":
-                palabras = lista_dificultad[2]
+                palabras = hard_list
                 category = 2
             else:
                 print("Por favor, elige una dificultad válida: ")
                 continue
 
             palabra = palabra_aleatoria(palabras, usadas[category])
-            usadas[category].append(palabra)
 
             if palabra == 0:
                 print("¡Has descubierto todas las palabras en esta dificultad! 🎉")
@@ -97,11 +102,18 @@ def main():
             print(f"¡Correcto! ¡Encontraste la palabra en {intentos} intentos!")
             if palabra_aleatoria(palabras, usadas[category]) == 0:
                 print("¡Has descubierto todas las palabras en esta dificultad! 🎉")
+                usadas[category].clear()
                 continue
 
+            usadas[category].append(palabra)
+            with open('used.txt','w') as file:
+                for lista in usadas:
+                    file.write(' '.join(lista)+'\n')
         else:
             print("Por favor responde con 'si' o 'no'.")
             continue
-
+    return usadas
 # Ejecutar el juego
 main()
+with open('used.txt') as file:
+    print([line.strip() for line in file.readlines()])
