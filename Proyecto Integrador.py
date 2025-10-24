@@ -112,7 +112,6 @@ def main():
         else:
             print("Por favor responde con 'si' o 'no'.")
             continue
-    return usadas
 # Ejecutar el juego
 main()
 with open('used.txt') as file:
