@@ -1,4 +1,5 @@
 import random
+import os
 
 # Selecciona una palabra aleatoria que no se haya usado antes
 def palabra_aleatoria(palabras, usadas):
@@ -15,46 +16,46 @@ def palabra_aleatoria(palabras, usadas):
 
 # Lógica principal del juego Wordle
 def wordle(palabra):
-    print("_ "*len(palabra), f'({len(palabra)})')
+    tablero = [['_' for i in range(len(palabra))] for i in range(len(palabra))]
     intentos = 0
     letras_palabra = list(palabra)
-    pistas = [""] * len(palabra)
     discarded = []
-    available = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+    available = list('abcdefghijklmnopqrstuvwxyz')
     colors = {'green':'\033[42m','yellow':'\033[43m','red':'\033[41m','reset':'\033[0m'}
 
-    while True:
-        intentos += 1
-        intento = input("Escribe una palabra: ").lower()
+    while intentos<len(palabra):
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print(f'Intentos restantes: {len(palabra)-intentos}')
+        print(f'{colors["red"]}{", ".join(discarded).upper()}{colors["reset"]}')
+        for fila in tablero:
+            print('|'.join(fila))
+        intento = input("").lower()
 
         if not intento or len(intento) != len(palabra):
-            print("Por favor, escribe una palabra válida: ")
             continue
 
-
         # Primer Intento: letras correctas en posición correcta
-        for i in range(len(palabra)):
-            if i < len(intento) and intento[i] == palabra[i]:
-                pistas[i] = f"{colors['green']}{intento[i].capitalize()}{colors['reset']}"
+        pistas=[]
+        for i,letra in enumerate(intento):
+            if letra == palabra[i]:
+                pistas.append(f"{colors['green']}{letra.capitalize()}{colors['reset']}")
                 letras_palabra[i] = 0  # Marcar como usada para palabras con letras repetidas
-            elif i<len(intento) and intento[i] in palabra:
-                pistas[i] = f"{colors['yellow']}{intento[i].capitalize()}{colors['reset']}"
+            elif letra in palabra:
+                pistas.append(f"{colors['yellow']}{letra.capitalize()}{colors['reset']}")
             else:
-                pistas[i] = f"{colors['red']}{intento[i].capitalize()}{colors['reset']}"
-                if intento[i] not in discarded:
-                    discarded.append(intento[i])
+                pistas.append(f"{colors['red']}{letra.capitalize()}{colors['reset']}")
+                if letra not in discarded:
+                    discarded.append(letra)
                     discarded.sort()
-                    available.remove(intento[i])
-
+                    available.remove(letra)
+            tablero[intentos] = list(pistas)
         if intento == palabra:
-            return "".join(pistas), intentos
-        else:
-            print("".join(pistas),
-                  '\nLetras descartadas:',
-                  ", ".join(discarded),
-                  "\nLetras disponibles:",
-                  ', '.join(available))
-
+            return tablero, intentos
+        intentos += 1
+        if intentos == len(palabra) and intento != palabra:
+            intentos += 1
+    os.system('cls' if os.name == 'nt' else 'clear')
+    return tablero, intentos
 
 # Función principal del juego
 def main():
@@ -97,12 +98,15 @@ def main():
                 print("¡Has descubierto todas las palabras en esta dificultad! 🎉")
                 continue
 
-            resultado, intentos = wordle(palabra)
-            print(resultado)
-            print(f"¡Correcto! ¡Encontraste la palabra en {intentos} intentos!")
+            tablero, intentos = wordle(palabra)
+            for fila in tablero:
+                print('|'.join(fila),)
+            if intentos <= len(palabra):
+                print(f'Encontraste la palabra en {intentos} intentos! 🎉')
+            else:
+                print(f'La palabra era {palabra}, suerte a la próxima')
             if palabra_aleatoria(palabras, usadas[category]) == 0:
                 print("¡Has descubierto todas las palabras en esta dificultad! 🎉")
-                usadas[category].clear()
                 continue
 
             usadas[category].append(palabra)
@@ -114,5 +118,3 @@ def main():
             continue
 # Ejecutar el juego
 main()
-with open('used.txt') as file:
-    print([line.strip() for line in file.readlines()])
