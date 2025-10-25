@@ -50,6 +50,7 @@ def wordle(palabra):
                     available.remove(letra)
             tablero[intentos] = list(pistas)
         if intento == palabra:
+            os.system('cls' if os.name == 'nt' else 'clear')
             return tablero, intentos
         intentos += 1
         if intentos == len(palabra) and intento != palabra:
@@ -59,11 +60,10 @@ def wordle(palabra):
 
 # Función principal del juego
 def main():
-    file = open('words.txt','r')
-    easy_list = file.readline().split()
-    medium_list = file.readline().split()
-    hard_list = file.readline().split()
-    file.close()
+    with open('words.txt','r') as file:
+        easy_list = file.readline().split()
+        medium_list = file.readline().split()
+        hard_list = file.readline().split()
 
     file = open('used.txt','r')
     usadas = [file.readline().split() for i in range(3)]
