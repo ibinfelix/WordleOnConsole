@@ -60,13 +60,16 @@ def wordle(palabra):
 
 # Función principal del juego
 def main():
-    with open('words.txt','r') as file:
-        easy_list = file.readline().split()
-        medium_list = file.readline().split()
-        hard_list = file.readline().split()
-
-    file = open('used.txt','r')
-    usadas = [file.readline().split() for i in range(3)]
+    try:
+        with open('word.txt','r') as w_file:
+            easy_list = w_file.readline().split()
+            medium_list = w_file.readline().split()
+            hard_list = w_file.readline().split()
+        with open('used.txt','r') as r_file:
+            usadas = [r_file.readline().split() for i in range(3)]
+    except FileNotFoundError as e:
+        print("No se ha podido iniciar el juego por un archivo faltante.\nPara solucionarlo verifique/repita/repare la instalación. (https://github.com/ibinfelix/WordleOnConsole/)")
+        return
 
     # INSTRUCCION: Haz el archivo words.txt 
 
